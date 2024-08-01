@@ -4,9 +4,12 @@ import img2 from "../assets/img/img2.png";
 import img3 from "../assets/img/img3.png";
 import img4 from "../assets/img/img4.png";
 import img5 from "../assets/img/img5.png";
-import img6 from "../assets/img/img6.jpeg";
 import axios from 'axios';
 import Review from './Review';
+import { useRecoilState } from 'recoil';
+import { reviewCancelBtnState, reviewedPopBtnState ,isReviewEditing, reviewData} from '../atoms';
+import ReviewedSession from './ReviewedSession';
+import { Icons } from '../assets/Icons/Icons';
 
 export const PastBooking = () => {
   const [response, setResponse] = useState(null);
@@ -15,11 +18,20 @@ export const PastBooking = () => {
   const [popUpData, setPopUpData] = useState({});
   const [getAllBookings, setGetAllBookings] = useState([]);
   const [bookingDetails,setBookingDetails] = useState(null);
+  const [cancelPopState,setCancelPopState] = useRecoilState(reviewCancelBtnState)
+  const [id,setId]=useState(null);
+  const [reviewedBookingPopState,setReviewedBookingPopState]= useRecoilState(reviewedPopBtnState)
+  const [reviewedResponse,setReviewedResponse]=useRecoilState(reviewData)
+  const [reviewId,setReviewId]=useState(null)
+  const [isEditing,setIsEdditing]=useRecoilState(isReviewEditing)
+  
+
 
   useEffect(() => {
     const fetchPastBookings = async () => {
       try {
-        const result = await axios.post('http://localhost:3000/api/consultationService/upcomingBookings', {
+        const result = await axios.post('http://localhost:3000/api/consultationService/pastBookings', {
+          
           gender: "male",
           experience: 2,
           user_slug: "hellti",
@@ -30,10 +42,10 @@ export const PastBooking = () => {
           reply: "done it",
           price: 500,
           order_id: "heomt",
-          seeker_id: "jellpino",
+          seeker_id: "jellpinoisnoob",
           slot: {
-            date: "2024-07-30T00:00:00Z",
-            start_time: "2024-07-30T10:47:00Z",
+            date: "2024-07-23T00:00:00Z",
+            start_time: "2024-07-23T10:47:00Z",
             duration: 60
           },
           pricing_id: "jf;lajisgj",
@@ -41,8 +53,24 @@ export const PastBooking = () => {
           cancelled_by: "seeker",
           confirmed_by: "consultant",
           session_category: "startup",
-          consultant_id: "48462f0f-e8ae-4872-bdf8-271c0f22727e",
-          session_id: "f0b76c51-8854-481e-a14d-521c5be2ac49"
+          consultant_id: "f5b129bc-a727-4059-ba96-0311d272718a",
+          session_id: "f0b76c51-8854-481e-a14d-521c5be2ac49",
+          name: "Prakjlf",
+          email: "Hello@mil.com",
+          contact: "945512387",
+          skillName: "letso",
+          college_name: "II KGP",
+          consultant_category: "startup",
+          session_time: "ThirtyMinutes",
+          session_price: "FiveHundred",
+          location: "8906-3932",
+          year: "890-3932",
+          skill_id: "1753f6ce-ece0-46cb-a31b-448eba905b0a",
+          education_id: "5e047016-2496-458e-b1f8-7a3d1b3e5727",
+          employment_id: "9fa15ba6-4f8d-496d-a7f2-aab7c68e5b85",
+          selected_parent_index: 1,
+          selected_children_index: 0,
+          selected_children_index_value: true      
         });
 
         setResponse(result.data);
@@ -55,6 +83,8 @@ export const PastBooking = () => {
     fetchPastBookings();
   }, []);
 
+
+
   const data = Array.isArray(response) ? response : [response];
 
   const popupHandler = (someId) => {
@@ -65,6 +95,48 @@ export const PastBooking = () => {
   const closePopUp = () => {
     setPop(false);
   };
+
+  const handleReviewBtn=(data,index)=>{
+    setIsEdditing(false)
+    setId(data)
+    setCancelPopState(true)
+    setReviewId(data)
+  }
+
+  const handleLabel=(word)=>{
+    switch (word) {
+      case 'one':
+          return 1;
+      case 'two':
+          return 2;
+      case 'three':
+          return 3;
+      case 'four':
+          return 4;
+      case 'five':
+          return 5;
+      default:
+          return null; 
+  }
+  }
+
+  const fetchReviewData=async (id)=>{
+    try {
+      await axios.post('http://localhost:3000/api/consultationService/reviewData', {
+          session_id:id     
+      }).then(result=>{
+        setReviewedResponse(result['data'].ConsultantReview)}  
+      )
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleRatingClick=(id)=>{
+    setReviewedBookingPopState(true)
+    fetchReviewData(id)
+  }
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -81,7 +153,7 @@ export const PastBooking = () => {
   };
 
   return (
-    <div>
+    <div className='overflow-y-auto h-[500px]'>
       {/* Uncomment and use the below block as needed */}
       {data[0].getAllBookings.map((data, index) => (
         <div className='border rounded-2xl my-4' key={data.id}>
@@ -109,9 +181,26 @@ export const PastBooking = () => {
             </div>
             <div className='grid grid-cols-1'>
               <div className='flex justify-center'>
-                <button className='px-16 py-4 border border-red-500 bg-red-500 text-white rounded-full text-xl' onClick={() => popupHandler(data.id)}>
+                {response.Reviews[index]==false?<button className='px-16 py-4 border border-red-500 bg-red-500 text-white rounded-full text-xl' 
+                onClick={() =>handleReviewBtn(data.id,index)
+                }>
                   Review Bookings
-                </button>
+                </button>:<div>
+                  <button onClick={()=>{handleRatingClick(data.id)}}>
+                    <div className='flex gap-2'>
+                      <div>
+                        <Icons.Star/>
+                      </div>
+                      <div className='my-auto text-red-500 font-bold'>
+                        {handleLabel(response.Reviews[index])}
+                      </div>
+                      <div className='my-auto text-red-500'>
+                        Rating
+                      </div>
+                    </div>
+                  </button>
+                  </div>}
+                
               </div>
             </div>
           </div>
@@ -177,36 +266,26 @@ export const PastBooking = () => {
         </div>
       ))}
       
-      {pop &&
+      {cancelPopState &&
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg md:w-3/4">
-            <div className='flex justify-between'>
-              <div className='flex gap-2'>
-                <div>
-                  <img src={img6} className='w-12 h-12 rounded-full' alt="Profile" />
-                </div>
-                <div>
-                  <div>Rekha Sahu</div>
-                  <div>May 10 at 7:00 AM</div>
-                </div>
-              </div>
-              <div className='flex gap-4'>
-                <div>
-                  <button className='px-6 py-3 bg-white border border-red-500 text-red-500 rounded-lg' onClick={() => closePopUp()}>Cancel</button>
-                </div>
-                <div>
-                  <button className='px-6 py-3 bg-red-500 text-white rounded-lg'>Submit</button>
-                </div>
-              </div>
-            </div>
-            <div className='my-2'>
-              <hr />
-            </div>
+            
             <div>
-              <Review />
+              <Review id={id}/>
             </div>
           </div>
         </div>
+      }
+
+      {reviewedBookingPopState&&
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg md:w-3/4">
+          
+          <div>
+            <ReviewedSession id={id} data={reviewedResponse}></ReviewedSession>
+          </div>
+        </div>
+      </div>
       }
     </div>
   )

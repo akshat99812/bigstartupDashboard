@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import axios from 'axios';
 
-const AddSessionPrice = () => {
+const EditSessionPrice = ({id}) => {
 
     const SessionDuration = {
         ThirtyMinutes: "ThirtyMinutes",
@@ -21,8 +21,9 @@ const AddSessionPrice = () => {
     const [sessionDuration, setSessionDuration] = useState(SessionDuration.ThirtyMinutes);
     const [sessionPrice,setSessionPrice] = useState(SessionPrice.FiveHundred);
     const [errorAdd,setErrorAdd] = useState(null);
+    const [success, setSuccess] = useState(false);
 
-    const addSessionData = async () => {
+    const editSessionData = async () => {
         
         setErrorAdd(null);
     
@@ -30,13 +31,14 @@ const AddSessionPrice = () => {
             session_time:sessionDuration,
             session_price:sessionPrice,
             consultant_id: "48462f0f-e8ae-4872-bdf8-271c0f22727e",
-            consultant_category:"startup"
+            consultant_category:"startup",
+            consultantPricing_id:id
         };
     
         try {
           console.log(data)
-          const result = await axios.post(`http://localhost:3000/api/consultationService/addSessionData`, data);
-          console.log(result)
+          const result = await axios.put(`http://localhost:3000/api/consultationService/editSessionData`, data);
+          setSuccess(true);
         } catch (err) {
           setErrorAdd(err.message);
           console.log(errorAdd)
@@ -102,7 +104,7 @@ const AddSessionPrice = () => {
                 </div>
                 <div>
                     <button className='px-5 py-2 rounded-full text-white bg-red-500'
-                    onClick={addSessionData}>
+                    onClick={editSessionData}>
                         Save
                     </button>
                 </div>
@@ -141,6 +143,11 @@ const AddSessionPrice = () => {
                         <option>Rs 2000</option>
                     </select>
                 </div>
+                <div>
+                    {success && <div className='text-green-600 font-bold text-xl text-center'>
+                        Success
+                        </div>}
+                </div>
 
             </div>
         </div>
@@ -150,4 +157,4 @@ const AddSessionPrice = () => {
   )
 }
 
-export default AddSessionPrice
+export default EditSessionPrice

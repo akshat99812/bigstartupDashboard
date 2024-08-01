@@ -2,6 +2,7 @@ import React, { useState ,useEffect } from 'react'
 import { Icons } from '../assets/Icons/Icons'
 import axios from 'axios'
 import AddSessionPrice from './AddSessionPrice'
+import EditSessionPrice from './EditSessionPrice'
 
 const StratupSessionPrices = () => {
 
@@ -11,6 +12,7 @@ const StratupSessionPrices = () => {
     const [priceId,setPriceId]=useState(null);
     const [errorDelete,setErrorDelete] = useState(null);
     const [sessionDataId,setSetSessionId] = useState(null);
+    const [editId,setEditId]=useState(null);
 
     useEffect(() => {
 
@@ -32,19 +34,15 @@ const StratupSessionPrices = () => {
       }, []);
 
     const addSessionData=()=>{
-
-
         setIsAdding(false)
     }
 
     const handleEdit=(details)=>{
 
-        const data = {
-            session_category: "startup",
-            consultant_id: "48462f0f-e8ae-4872-bdf8-271c0f22727e",
-            session_id: details.id,
-            consultant_category: "startup",
-        }
+        setEditId(details);
+        setIsEdditing(true)
+        console.log(editId)
+
     }
 
     const deleteSessionData = async (id) => {
@@ -57,7 +55,9 @@ const StratupSessionPrices = () => {
         };
     
         try {
-          const result = await axios.post(`http://localhost:3000/api/consulationService/deleteSessionData`, data);
+          const result = await axios.delete(`http://localhost:3000/api/consultationService/deleteSessionData`,{
+            data:data
+          });
           console.log(result)
         } catch (err) {
           setErrorDelete(err.message);
@@ -159,11 +159,12 @@ const StratupSessionPrices = () => {
                             <div className='flex gap-4 my-auto mx-auto'>
                             <button 
                                 className='px-2 py-2 border rounded-full drop-shadow-lg'
-                                onClick={() => handleEdit(data)}
+                                onClick={() => handleEdit(data.id)}
                             >
                                 <Icons.Pen/>
                             </button>
-                            <button className='px-2 py-2 border rounded-full drop-shadow-lg' onClick={() => deleteSessionData(data.id)}>
+                            <button className='px-2 py-2 border rounded-full drop-shadow-lg' 
+                            onClick={() => deleteSessionData(data.id)}>
                                 <Icons.Trash/>
                             </button>
                             </div>
@@ -177,7 +178,7 @@ const StratupSessionPrices = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-lg md:w-3/4">
                      <div>
-                        <button className='bg-red-500 px-4 py-2 text-white'
+                        <button className='bg-red-500 rounded-full px-4 py-2 text-white'
                         onClick={()=>{setIsAdding(false)}}>Close</button>
                     </div>
                     <AddSessionPrice ></AddSessionPrice>
@@ -190,10 +191,10 @@ const StratupSessionPrices = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-lg md:w-3/4">
                      <div>
-                        <button className='bg-red-500 px-4 py-2 text-white'
-                        onClick={()=>{setIsAdding(false)}}>Close</button>
+                        <button className='bg-red-500 rounded-full px-4 py-2 text-white'
+                        onClick={()=>{setIsEdditing(false)}}>Close</button>
                     </div>
-                    <AddSessionPrice ></AddSessionPrice>
+                    <EditSessionPrice id={editId}></EditSessionPrice>
                  
                     </div>
                 </div>

@@ -85,13 +85,13 @@ export const UpcomingBookings = () => {
    
 
   return (
-    <div>
+    <div className='overflow-y-auto h-[500px] '>
       <div className="text-xl font-bold text-left my-4">
         Upcoming Bookings
       </div>
         {data[0].getAllBookings.map((booking, index) => (
-  <div className='border rounded-2xl my-4' key={booking.id}>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 my-6">
+  <div className='border rounded-2xl my-4 ' key={booking.id}>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 my-6 ">
       <div className='flex gap-10 mx-10'>
         <div>
           <img src={img} className="w-12 h-12 rounded-full" alt="Consultant" />

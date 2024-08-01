@@ -68,10 +68,8 @@ const CancelBookings = ({id , bookingDetails}) => {
         if (Array.isArray(bookings)) {
 
           const result = bookings.filter(item => item.id === targetId);
-        //   console.log(result);
-        //   console.log(result[0])
           setResultData(result);
-          console.log(resultData)
+          
           
         } else {
           console.log('getAllBookings is not an array or does not exist.');
@@ -161,7 +159,7 @@ const CancelBookings = ({id , bookingDetails}) => {
           },
           pricing_id: "jf;lajisgj",
           comment: "Did it by mistake",
-          cancelled_by: "seeker",
+          cancelled_by: "consultant",
           confirmed_by: "consultant",
           session_category: "startup",
           consultant_id: "48462f0f-e8ae-4872-bdf8-271c0f22727e",
@@ -171,7 +169,7 @@ const CancelBookings = ({id , bookingDetails}) => {
           contact: "945512387",
           skillName: "letso",
           college_name: "II KGP",
-          consultant_category: "startup",
+          consultant_category: "consultation",
           session_time: "ThirtyMinutes",
           session_price: "FiveHundred",
           location: "8906-3932",
@@ -192,8 +190,6 @@ const CancelBookings = ({id , bookingDetails}) => {
           setErrorCancel(err.message);
         } 
       };
-
-    // console.log(result);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -362,7 +358,7 @@ const CancelBookings = ({id , bookingDetails}) => {
                     <div>
                         <button className='text-white px-4 py-2 rounded-full bg-red-500'
                         onClick={()=>{
-                            cancelBooking
+                            cancelBooking()
                             setCancelPop(false)
                         }}
                         >Yes Cancel</button>

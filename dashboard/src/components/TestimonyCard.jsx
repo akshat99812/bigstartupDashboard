@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Icons } from '../assets/Icons/Icons'
 import img6  from '../assets/img/img6.jpeg'
+import axios from 'axios'
 
 const TestimonyCard = ({data}) => {
     const [reply,setReply]=useState("");
@@ -13,6 +14,24 @@ const TestimonyCard = ({data}) => {
    const onCancel=()=>{
     setReply("");
    }
+    const parsedQuality = JSON.parse(data.qualities);
+    
+    function timeDifference(dateString) {
+        const inputDate = new Date(dateString);
+        
+        const currentTime = new Date();
+        
+        const timeDiff = currentTime - inputDate;
+        
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        
+        if (days > 0) {
+            return `${days} days ago`;
+        } else {
+            return `${hours} hours ago`;
+        }
+    }
 
   return (
     <div className='border my-4'>
@@ -22,7 +41,7 @@ const TestimonyCard = ({data}) => {
                 <img src={img6} alt='img6' className='h-12 w-12 rounded-full'></img>
             </div>
             <div className='my-auto text-2xl'>
-                {data.user.name}
+                Rekha Sahu
             </div>
 
         </div>
@@ -32,17 +51,17 @@ const TestimonyCard = ({data}) => {
                     <Icons.Star></Icons.Star>
                 </div>
                 <div className='my-auto'>
-                   {data.user.rating} Rating
+                   {data.rating} Rating
                 </div>
             </div>
             <div className='my-auto'>
-                {data.details.date}
+                {timeDifference(data.date)}
             </div>
 
         </div>
       </div>
         <div className='ml-4 text-xl my-2'>
-            Sessioned by {data.details.name} ( Startup Consultation) about Marketing, finance & Investment
+            Sessioned by {data.seekerId} ( Startup Consultation) about Marketing, finance & Investment
         </div>
         <div className='flex gap-4 ml-4'>
             <div>
@@ -57,18 +76,20 @@ const TestimonyCard = ({data}) => {
                 Happy with : 
             </div>
             <div className='grid md:grid-cols-4 grid-cols-2 gap-4'>
-                {data.details.qualities.map((item)=>{
+                {parsedQuality.map((item)=>{
                     return(
-                        <div className='my-auto text-gray-500 bg-blue-100 text-center px-2'>
+                        <div className='my-auto mx-2 text-gray-500 bg-blue-100 text-center px-2'>
                             {item}
                          </div>
                     )
                 })}
+                
+                
                     
             </div>
         </div>
         <div className='mx-4'>
-            {data.details.comment}
+            {data.comment}
         </div>
         <div>
             <button 
@@ -77,72 +98,7 @@ const TestimonyCard = ({data}) => {
         <div className='mx-10'>
             <hr />
         </div>
-        <div className='flex justify-between mx-4 my-4' >
-            <div className='flex gap-4 '>
-                <div>
-                    <img src={img6} alt='img6' className='h-12 w-12 rounded-full'></img>
-                </div>
-                <div className='my-auto text-xl'>
-                     {data.details.name}
-                </div>
-                
-            </div>
-            <div className='flex gap-4'>
-                <div>
-                    <button className='text-red-500 px-4 py-2 text-xl my-auto border-2 border-red-500 rounded-lg'
-                    onClick={()=>{
-                        onCancel()
-                    }}>Cancel</button>
-                </div>
-                <div>
-                    <button className='text-white px-4 bg-red-500 py-2 text-xl my-auto border-2 border-red-500 rounded-lg' 
-                    onClick={()=>{
-                        onReply();
-                    }}>Reply</button>
-                </div>
-
-            </div>
-        </div>
-        <div>
-            <input className='my-4  border border-gray-300 w-3/4 mx-4 ' 
-            placeholder='Write a reply' onChange={(e)=>setReply(e.target.value)}>
-            </input>
-        </div>
         
-       {data.details.reply &&
-       <div>
-       <div className='flex justify-between mx-4 my-6'>
-           <div className='flex gap-4'>
-               <div>
-                   <Icons.Reply/>
-               </div>
-               <div>
-                   Replied
-               </div>
-           </div>
-           <div className='flex gap-4'>
-               <div>
-                   <button>
-                       <Icons.Pen/>
-                   </button>
-               </div>
-               <div>
-                   <button>
-                       <Icons.Trash/>
-                   </button>
-               </div>
-           </div>
-       </div>
-       {
-            data.details.reply && data.details.reply.map((review, index) => (
-                <div key={index} className="border p-4 mb-2 rounded">
-                <div>{review}</div>
-                </div>
-            ))
-            }  
-   </div>
-       } 
-
     </div>
   )
 }

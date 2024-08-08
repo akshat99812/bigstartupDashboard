@@ -2,37 +2,42 @@ import React, { useState ,useEffect } from 'react'
 import img6  from '../assets/img/img6.jpeg'
 import { Icons } from '../assets/Icons/Icons'
 import { useRecoilState } from 'recoil'
-import { reviewCancelBtnState, reviewedPopBtnState ,isReviewEditing, reviewData } from '../atoms'
+import { render, reviewedPopBtnState ,editRPop} from '../atoms'
 import Review from './Review'
 import axios from 'axios'
+import EditReview from './EditReview'
 
-const ReviewedSession = (id,data) => {
+const ReviewedSession = (payloadData) => {
 
-    const [reviewEditPop,setReviewEditPop]=useRecoilState(reviewCancelBtnState)
     const [rmp,setRmp]=useRecoilState(reviewedPopBtnState)
     const [response,setResponse]=useState(null)
     const [error,setError]=useState(null)
-    const [isEditing,setIsEdditing]=useRecoilState(isReviewEditing)
-    const [reviewedData,setReviewedData]=useRecoilState(reviewData)
+    const [isEditing,setIsEdditing]=useRecoilState(editRPop)
+    const [loading,setLoading]=useState(true)
+    const [deleteSuccess,setDeleteSuccess]=useState(false)
+    const [reRender,setReRender]=useRecoilState(render)
+    const [deletePop,setDeletePop]=useState(false)
 
     const handleEdit=()=>{
-        setRmp(false)
-        setReviewEditPop(true)
         setIsEdditing(true)
     } 
 
+    const editKaData=payloadData;
+
     const handleDelete = async () => {
-        const data = {
-            "session_id": id['data'].sessionId,
-            "review_id": reviewedData.id
+        const payload = {
+             "session_id": payloadData.payloadData.data.ConsultantReview.sessionId,
+             "review_id": payloadData.payloadData.data.ConsultantReview.id
         };
-        console.log(data);
+        console.log("delete endpoint data")
+        console.log(payloadData.payloadData.data.ConsultantReview.id);
         try {
-            const response = await axios.delete('http://localhost:3000/api/consultationService/deleteReview', {
-                data: data
-            });
-            setRmp(false)
-            console.log(response.data);
+            const response = await axios.delete('http://localhost:3000/api/consultationService/deleteReview',
+                {
+                    data:payload
+                });
+            setDeleteSuccess(true)
+            console.log(deleteSuccess)
         } catch (error) {
             console.log(error);
         }
@@ -40,13 +45,14 @@ const ReviewedSession = (id,data) => {
 
     useEffect(()=>{
         const responseHandler=()=>{
-            setResponse(data)
+            setResponse(payloadData)
         }
         responseHandler()
+       //  console.log(payloadData.payloadData.data.ConsultantReview.comment)
     },[])
 
-    const getTime=()=>{
-
+    const getTime=(date)=>{
+        return date
     }
 
     const handleLabel=(word)=>{
@@ -68,8 +74,86 @@ const ReviewedSession = (id,data) => {
 
      const closeHandler=()=>{
         setRmp(false)
-        console.log(reviewedData)
      }
+
+     const labelHandler=(props)=>{
+        switch(props){
+                case 'Very Actively':
+                return "Very Active Participation";
+                case 'Actively':
+                    return "Active Participation";
+                case 'Somewhat Actively':
+                return "Somewhat Active Participation";
+                case 'Not Actively':
+                return "Not Active Participation";
+
+                case 'Always':
+                return 'Always Respectful';
+                case 'Most Of Time':
+                return 'Respectful';
+                case 'Sometimes':
+                return 'Sometimes Respectful';
+                case 'Rarely':
+                return 'Rarely Respectful';
+                default:
+                    return null;         
+        }
+     }
+
+    if(deletePop){
+        return (
+            <div>
+                <div className='flex justify-center'>
+                <Icons.RedCross/>
+                 </div>
+            <div>
+                <div className='text-xl font-bold text-center my-2'>
+                    Cancel Booking 
+                </div>
+                <div className='text-gray-500 text-center my-2'>
+                    Do you want to cancel this booking? 
+                </div>
+                <div className='flex justify-center gap-4'>
+                    <div>
+                        <button className='text-black px-4 py-2 rounded-full bg-gray-100'
+                        onClick={()=>{
+                            setDeletePop(false)
+                        }}
+                        >No keep</button>
+                    </div>
+                    <div>
+                        <button className='text-white px-4 py-2 rounded-full bg-red-500'
+                        onClick={()=>{
+                            handleDelete()
+                            setDeletePop(false)
+                        }}
+                        >Yes Cancel</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        )
+    }
+
+    if(deleteSuccess){
+        return (
+            <div>
+                <div className="bg-white rounded-lg ">
+                    <div className='text-center my-4'>
+                        <button className='px-16 py-4 bg-red-500 text-white text-center rounded-full'
+                        onClick={()=>{setDeleteSuccess(false)
+                            setRmp(false)
+                            setReRender(!reRender)
+
+                        }}>Close</button>
+                    </div>
+                    <div className='text-center text-3xl font-bold'>
+                        Review deleted successfully
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
   return (
     <div>
@@ -83,13 +167,13 @@ const ReviewedSession = (id,data) => {
                         Rekha Sahu
                     </div>
                     <div className='text-gray-500 '>
-                        {reviewData.start_time}
+                        { payloadData.start_time}
                     </div>
                 </div>
             </div>
             <div className='flex gap-x-4'>
                 <div className='my-auto'>
-                    <button onClick={()=>{handleDelete()}}>
+                    <button onClick={()=>{setDeletePop(true)}}>
                         <div className='flex gap-2'>                      
                             <div>
                                 <Icons.RedTrash/>
@@ -134,7 +218,7 @@ const ReviewedSession = (id,data) => {
         <div>
             <div className='flex justify-between'>
                 <div>
-                    Sessioned by Ridhima Sen ( Startup Consultation) about Marketing, finance & Investment
+                    Sessioned by Ridhima ( Startup Consultation) about Marketing, finance & Investment
                 </div>
                 <div className='flex gap-x-2'>
                     <div className='flex'>
@@ -142,12 +226,12 @@ const ReviewedSession = (id,data) => {
                             <Icons.Star/>
                         </div>
                         <div className='my-auto'>
-                        4  Rating
+                        {handleLabel(payloadData.payloadData.data.ConsultantReview.stars)}  Rating
                         </div>
                          
                     </div>
                     <div className='text-gray-500 my-auto'>
-                        2 Hours Ago
+                        {getTime(payloadData.payloadData.data.ConsultantReview.start_time)}
                     </div>
                 </div>
             </div>
@@ -156,21 +240,21 @@ const ReviewedSession = (id,data) => {
                     Happy With : 
                 </div>
                 <div className='text-gray-500 px-4 py-1 bg-violet-200 mx-2'>
-                    Excellent Behavior
+                    {labelHandler(payloadData.payloadData.data.ConsultantReview.seeker_respectful)}
                 </div>
                 <div className='text-gray-500 px-4 py-1 bg-violet-200 mx-2'>
-                    {reviewedData.comment}
+                    {labelHandler(payloadData.payloadData.data.ConsultantReview.seeker_participate)}
                 </div>
             </div>
             <div className='text-gray-500 my-3 w-4/5'>
-                {reviewedData.comment}
+                 {payloadData.payloadData.data.ConsultantReview.comment}
             </div>
         </div>
-        {reviewEditPop&&
+        {isEditing &&
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white p-6 rounded-lg md:w-3/4">
           <div>
-            <Review id={id}/>
+            <EditReview payload={payloadData} ></EditReview>
           </div>
         </div>
       </div>}

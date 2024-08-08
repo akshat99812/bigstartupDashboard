@@ -3,16 +3,21 @@ import { Icons } from '../assets/Icons/Icons'
 import axios from 'axios'
 import AddSessionPrice from './AddSessionPrice'
 import EditSessionPrice from './EditSessionPrice'
+import { useRecoilState } from 'recoil';
+import { startupRender,startupEditPricePop,startupAddPricePop} from '../atoms';
 
 const StratupSessionPrices = () => {
-
-    const [isAdding,setIsAdding]=useState(false)
-    const [isEdditing,setIsEdditing]=useState(false)
     const [sessionDetails,setSessionDetails]=useState([])
     const [priceId,setPriceId]=useState(null);
     const [errorDelete,setErrorDelete] = useState(null);
     const [sessionDataId,setSetSessionId] = useState(null);
     const [editId,setEditId]=useState(null);
+    const [render,reRender]=useRecoilState(startupRender)
+    const [addButton,setAddButton]=useState(true)
+    const [editPricePop,setEditPricePop]=useRecoilState(startupEditPricePop)
+    const [addPricePop,setAddPricePop]=useRecoilState(startupAddPricePop)
+    const [confirmDeletePop,setConfirmDeletePop]=useState(false)
+    const [deleteId,setDeleteId]=useState(null)
 
     useEffect(() => {
 
@@ -25,13 +30,17 @@ const StratupSessionPrices = () => {
     
         axios.post('http://localhost:3000/api/consultationService/getAllDetails', data)
           .then(response => {
-            console.log('Response:', response.data);
+            
             setSessionDetails(response.data.sessionPricingDetails)
+            
+            if(response.data.sessionPricingDetails.length===4){
+                setAddButton(false)
+            }
           })
           .catch(error => {
             console.error('Error:', error);
           });
-      }, []);
+      }, [render,addButton]);
 
     const addSessionData=()=>{
         setIsAdding(false)
@@ -40,9 +49,14 @@ const StratupSessionPrices = () => {
     const handleEdit=(details)=>{
 
         setEditId(details);
-        setIsEdditing(true)
+        setEditPricePop(true)
         console.log(editId)
 
+    }
+
+    const deteteSessionPop=(id)=>{
+        setConfirmDeletePop(true)
+        setDeleteId(id)
     }
 
     const deleteSessionData = async (id) => {
@@ -58,7 +72,13 @@ const StratupSessionPrices = () => {
           const result = await axios.delete(`http://localhost:3000/api/consultationService/deleteSessionData`,{
             data:data
           });
-          console.log(result)
+          setConfirmDeletePop(false)
+          reRender(!render)
+          
+          if(response.data.sessionPricingDetails.length===3){
+            setAddButton(true)
+            }
+
         } catch (err) {
           setErrorDelete(err.message);
           console.log(errorDelete)
@@ -127,26 +147,29 @@ const StratupSessionPrices = () => {
                 <div className='my-auto'>
                     Session Price
                 </div>
+                {addButton &&
                 <div>
-                    <button className='bg-red-500 text-white py-2 px-2  hover:bg-red-600 rounded-full  text-sm my-auto'
-                    onClick={()=>{
-                        setIsAdding(true)
-                    }}>
-                        <div className='flex gap-2'>
-                            <div className='my-auto'>
-                                Add
-                            </div>
-                            <div className='my-auto'>
-                                <Icons.Add/>
-                            </div>
+                <button className='bg-red-500 text-white py-2 px-2  hover:bg-red-600 rounded-full  text-sm my-auto'
+                onClick={()=>{
+                    setAddPricePop(true)
+                }}>
+                    <div className='flex gap-2'>
+                        <div className='my-auto'>
+                            Add
                         </div>
-                    </button>
-                </div>
+                        <div className='my-auto'>
+                            <Icons.Add/>
+                        </div>
+                    </div>
+                </button>
+            </div>
+                }
+                
 
             </div>
             {sessionDetails.map((data)=>{
                 return(
-                    <div>
+                    <div key={data.id}>
                         <div className='grid grid-cols-3  mx-4  text-gray-500 px-4 py-2 mx-0 '>
 
                             <div className='my-auto '>
@@ -164,7 +187,7 @@ const StratupSessionPrices = () => {
                                 <Icons.Pen/>
                             </button>
                             <button className='px-2 py-2 border rounded-full drop-shadow-lg' 
-                            onClick={() => deleteSessionData(data.id)}>
+                            onClick={() => deteteSessionPop(data.id)}>
                                 <Icons.Trash/>
                             </button>
                             </div>
@@ -174,31 +197,34 @@ const StratupSessionPrices = () => {
                 )
             })}
 
-            {isAdding && 
+            {addPricePop && 
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-lg md:w-3/4">
-                     <div>
-                        <button className='bg-red-500 rounded-full px-4 py-2 text-white'
-                        onClick={()=>{setIsAdding(false)}}>Close</button>
-                    </div>
-                    <AddSessionPrice ></AddSessionPrice>
-                 
+                        <AddSessionPrice ></AddSessionPrice>   
                     </div>
                 </div>
                 }
 
-                {isEdditing && 
+                {editPricePop && 
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-lg md:w-3/4">
-                     <div>
-                        <button className='bg-red-500 rounded-full px-4 py-2 text-white'
-                        onClick={()=>{setIsEdditing(false)}}>Close</button>
-                    </div>
-                    <EditSessionPrice id={editId}></EditSessionPrice>
-                 
+                        <EditSessionPrice id={editId}></EditSessionPrice>     
                     </div>
                 </div>
                 }
+
+                {confirmDeletePop&&
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg md:w-3/4">
+                        <div className='text-center text-red-500 font-bold'>
+                            Are you sure you want to delete this session price?
+                        </div>
+                        <div className='text-center'>
+                            <button onClick={()=>{deleteSessionData(deleteId)}} className='mx-2 bg-red-500 rounded-lg text-white px-8 py-2 my-4'>Yes</button>
+                            <button onClick={()=>{setConfirmDeletePop(false)}} className='mx-2 border text-red-500 border-red-500 rounded-lg px-8 py-2 my-4'>No</button>
+                        </div>    
+                    </div>
+                </div>}
             
         </div>
       

@@ -1,71 +1,97 @@
+
 import React, { useEffect, useState } from 'react'
 import img6  from '../assets/img/img6.jpeg'
 import { Icons } from '../assets/Icons/Icons'
 import { useRecoilState } from 'recoil'
-import { isReviewEditing, render, reviewCancelBtnState, reviewData} from "../atoms"
+import { isReviewEditing, render, editRPop,reviewedPopBtnState} from "../atoms"
 import axios from 'axios'
 
+const EditReview = ({payload}) => {
 
-const Review = (id,payload) => {
+    const [cancelPop,setCancelPop]=useRecoilState(editRPop)
+    const [participation,setParticipation]=useState(" ")
+    const [respect,setRespect]=useState(" ")
+    const [stars,setStars]=useState(0)
+    const [starsLabel,setStarsLabel]=useState(null);
+    const [description,setDescription]=useState(" ")
+    const [isEditing,setIsEdditing]=useRecoilState(isReviewEditing)
+    const [reRender,setReRender]=useRecoilState(render)
+    const [success,setSuccess]=useState(false)
+    const [reviewedBookingPopState,setReviewedBookingPopState]= useRecoilState(reviewedPopBtnState)
 
-  const [cancelPop,setCancelPop]=useRecoilState(reviewCancelBtnState)
-  const [participation,setParticipation]=useState(" ")
-  const [respect,setRespect]=useState(" ")
-  const [stars,setStars]=useState(0)
-  const [starsLabel,setStarsLabel]=useState(null);
-  const [description,setDescription]=useState(" ")
-  const [isEditing,setIsEdditing]=useRecoilState(isReviewEditing)
-  const [reviewId,setReviewData]=useRecoilState(reviewData)
-  const [reRender,setReRender]=useRecoilState(render)
-  const [success,setSuccess]=useState(false)
-
-
-  const handleSave=async ()=>{
-
-    const data ={
-            "comment" :description,
-            "stars":starsLabel,
-            "session_respectful":respect,
-            "session_participation":participation,
-            "seeker_id": "jellpino",
-            "session_id":id.id
-    }
+    const handleEdit=async ()=>{
     
-    try {
-      const result = await axios.post(`http://localhost:3000/api/consultationService/reviewBooking`, data);
-      setSuccess(true)
-    } catch (err) {  
-      console.log(err)
-    }  
-  }
+        const data ={
+                "comment" :description,
+                "stars":starsLabel,
+                "session_respectful":respect,
+                "session_participation":participation,
+                "seeker_id": "jellpino",
+                "session_id":payload.payloadData.data.ConsultantReview.sessionId,
+                "review_id":payload.payloadData.data.ConsultantReview.id
+        }
+    
+          
+        try {
+          const result = await axios.put(`http://localhost:3000/api/consultationService/editReview`, data);   
+          
+          console.log("data changed successfully")
+          setIsEdditing(false)
+          setSuccess(true)
+        } catch (err) {
+          console.log(err)
+        } 
+      }
 
-  if(success){
-    return (
-      <div>
-        <div className='text-center text-3xl font-bold my-4'>
+      const handleLabel=(word)=>{
+        switch (word) {
+          case 'one':
+              return 1;
+          case 'two':
+              return 2;
+          case 'three':
+              return 3;
+          case 'four':
+              return 4;
+          case 'five':
+              return 5;
+          default:
+              return null; 
+      }
+      }
+      
+     const closeHandler=()=>{
+        setRmp(false)
+     }
+
+     if(success){
+      return(
+        <div className='h-44 '>
+        <div className='text-center text-3xl font-bold mb-10 mt-3'>
           Thank you for your feedback
         </div>
-        <div className='text-center'>
-          <button onClick={() => {setSuccess(false)
-            setCancelPop(false)
+        <div className='text-center '>
+          <button onClick={() => {
+            setSuccess(false)
+            setReviewedBookingPopState(false)   
             setReRender(!reRender)
           }}
           className='px-6 py-3 bg-red-500 text-white rounded-lg'>Close</button>
         </div>
       </div>
-    )
-  }
+      )
+    }
 
 
   return (
-    <div>
+      <div>
         <div className='flex justify-between'>
               <div className='flex gap-2'>
                 <div>
                   <img src={img6} className='w-12 h-12 rounded-full' alt="Profile" />
                 </div>
                 <div>
-                  <div>Rekha Sahu</div>
+                  <div>Rekha Savant</div>
                   <div>May 10 at 7:00 AM</div>
                 </div>
               </div>
@@ -76,7 +102,7 @@ const Review = (id,payload) => {
                 </div>
                 <div>
                   <button className='px-6 py-3 bg-red-500 text-white rounded-lg'
-                  onClick={handleSave}>Submit</button>
+                  onClick={handleEdit}>Submit</button>
                 </div>
               </div>
             </div>
@@ -249,8 +275,9 @@ const Review = (id,payload) => {
             </div>
           </div>
         </div>
+    
     </div>
   )
 }
 
-export default Review
+export default EditReview

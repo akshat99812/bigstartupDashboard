@@ -1,5 +1,7 @@
 import React,{useState} from 'react'
 import axios from 'axios';
+import { useRecoilState } from 'recoil';
+import { startupRender,startupEditPricePop} from '../atoms';
 
 const EditSessionPrice = ({id}) => {
 
@@ -22,6 +24,9 @@ const EditSessionPrice = ({id}) => {
     const [sessionPrice,setSessionPrice] = useState(SessionPrice.FiveHundred);
     const [errorAdd,setErrorAdd] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [render,reRender]=useRecoilState(startupRender)
+    const [editPricePop,setEditPricePop]=useRecoilState(startupEditPricePop)
+    
 
     const editSessionData = async () => {
         
@@ -39,6 +44,8 @@ const EditSessionPrice = ({id}) => {
           console.log(data)
           const result = await axios.put(`http://localhost:3000/api/consultationService/editSessionData`, data);
           setSuccess(true);
+          reRender(!render)
+          setEditPricePop(false)
         } catch (err) {
           setErrorAdd(err.message);
           console.log(errorAdd)

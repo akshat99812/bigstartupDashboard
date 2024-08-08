@@ -1,7 +1,12 @@
 import React,{useState} from 'react'
 import axios from 'axios';
+import { useRecoilState } from 'recoil';
+import { startupRender,startupAddPricePop} from '../atoms';
 
 const AddSessionPrice = () => {
+
+    const [render,reRender]=useRecoilState(startupRender)
+    const [addPricePop,setAddPricePop]=useRecoilState(startupAddPricePop)
 
     const SessionDuration = {
         ThirtyMinutes: "ThirtyMinutes",
@@ -37,6 +42,8 @@ const AddSessionPrice = () => {
           console.log(data)
           const result = await axios.post(`http://localhost:3000/api/consultationService/addSessionData`, data);
           console.log(result)
+          reRender(!render)
+          setAddPricePop(false)
         } catch (err) {
           setErrorAdd(err.message);
           console.log(errorAdd)
@@ -96,6 +103,7 @@ const AddSessionPrice = () => {
             <div className='flex gap-4'>
                 <div>
                     <button className='text-red-500 px-4 py-2 border border-red-500 rounded-full'
+                    onClick={()=>{setAddPricePop(false)}}
                     >
                         Cancel
                     </button>

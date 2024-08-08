@@ -2,6 +2,8 @@ import React, { useState ,useEffect} from 'react'
 import { Icons } from '../assets/Icons/Icons'
 import img6  from '../assets/img/img6.jpeg'
 import axios from 'axios';
+import { useRecoilState } from 'recoil';
+import { upcomingRender,upcomingUpdate } from '../atoms';
 
 const CancelBookings = ({id , bookingDetails}) => {
     console.log(id)
@@ -16,6 +18,8 @@ const CancelBookings = ({id , bookingDetails}) => {
     const [errorConfirm, setErrorConfirm] = useState(null);
     const [responseCancel,setResponseCancel]=useState(null)
     const [errorCancel,setErrorCancel]=useState(null)
+    const [upcoming,setUpcoming]=useRecoilState(upcomingRender)
+    const [render,setRender]=useRecoilState(upcomingUpdate)
 
   
     useEffect(() => {
@@ -80,8 +84,6 @@ const CancelBookings = ({id , bookingDetails}) => {
             
         
       },[response])
-
-      
     
       const confirmBooking = async () => {
         setErrorConfirm(null);
@@ -132,6 +134,8 @@ const CancelBookings = ({id , bookingDetails}) => {
           const result = await axios.put(`http://localhost:3000/api/consultationService/confirmBooking`, data);
           setResponseConfirm(result.data);
           setConfirmPop(false)
+          setUpcoming(!upcoming)
+          setRender(!render)
         } catch (err) {
           setErrorConfirm(err.message);
         } 
@@ -186,6 +190,8 @@ const CancelBookings = ({id , bookingDetails}) => {
           const result = await axios.put(`http://localhost:3000/api/consultationService/cancelBooking`, data);
           setResponseCancel(result.data);
           setCancelPop(false)
+          setRender(!render)
+          setUpcoming(!upcoming)
         } catch (err) {
           setErrorCancel(err.message);
         } 

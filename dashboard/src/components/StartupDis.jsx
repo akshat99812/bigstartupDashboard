@@ -157,9 +157,7 @@ const StartupDis = () => {
                 
 
             </div>
-            {comments.map((data)=>{
-                return(
-                    <div>
+                    <div >
                         <div className='flex justify-between  mx-4  text-gray-500 px-4 py-2 mx-0 '>
                             
                             <div className='my-auto w-4/5 '>
@@ -179,9 +177,7 @@ const StartupDis = () => {
                             </div>
                          </div> 
 
-                    </div> 
-                )
-            })}
+                    </div>
             
         </div>
         {isAdding && 

@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { Icons } from '../assets/Icons/Icons';
 
 const SkillInfo = () => {
+
+
+  
+
+
   const [skillData, setSkillData] = useState([
     { id: 1, name: "Content Writing" },
     { id: 2, name: "Digital Marketing" },
